@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Genre;
 use App\Http\Requests\StoreGenreRequest;
 use App\Http\Requests\UpdateGenreRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class GenreController extends Controller
 {
@@ -62,5 +64,23 @@ class GenreController extends Controller
         $genre->delete();
 
         return redirect()->route('genres.index')->with('success', 'Genre deleted.');
+    }
+
+    /**
+     * Search for a genre by name.
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function ajaxGenreName(Request $request): JsonResponse
+    {
+        $generes = Genre::query();
+
+        if ($request->has('query')) {
+            $generes->where('name', 'like', '%' . $request->get('query') . '%');
+        }
+
+        return response()->json([
+            'data' => $generes->pluck('name')
+        ]);
     }
 }

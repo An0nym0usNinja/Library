@@ -7,6 +7,27 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
+            <form class="pb-4" action="{{ route('authors.index') }}">
+                <div class="flex">
+                    <div class="relative w-full">
+                        <input
+                            class="z-20 block w-full rounded-s-lg rounded-e-lg border border-s-2 border-gray-300 border-s-gray-50 bg-gray-50 p-2.5 text-sm text-gray-900 focus:outline-none focus:ring-0 dark:border-gray-600 dark:border-s-gray-700 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                            name="query" type="text" placeholder="Search author name..." value="{{ request()->get('query') }}" />
+                        <button
+                            class="absolute end-0 top-0 h-full rounded-e-lg border border-blue-700 bg-blue-700 p-2.5 text-sm font-medium text-white hover:bg-blue-800 dark:bg-indigo-600 dark:hover:bg-indigo-700"
+                            type="submit">
+                            <svg class="h-4 w-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                            </svg>
+                            <span class="sr-only">Search</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                     <caption class="hidden">Author index table</caption>
@@ -43,7 +64,12 @@
                                     {{ $author->id }}
                                 </th>
                                 <td class="px-6 py-2">
-                                    {{ $author->name }}
+                                    <a href="{{ route('books.index', [
+                                        'authors[]' => $author->id
+                                    ]) }}"
+                                    class="text-indigo-500 hover:text-indigo-700">
+                                        {{ $author->name }}
+                                    </a>
                                 </td>
                                 <td class="px-6 py-2">
                                     {{ $author->created_at }}

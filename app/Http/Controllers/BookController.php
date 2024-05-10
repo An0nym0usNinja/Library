@@ -5,17 +5,51 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
+use App\Models\Author;
+use App\Models\Genre;
+use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
     /**
+     * The request instance.
+     */
+    public $request;
+
+    /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $books = Book::paginate(7);
+        $this->request = $request;
+        $books = Book::with('author', 'genre');
 
-        return view('models.book.index', compact('books'));
+        // filter by query
+        if ($request->has('query')) {
+            $books->where(function ($query) {
+                $search = $this->request->input('query');
+                $query->where('title', 'like', "%$search%")
+                    ->orWhere('pages', 'like', "%$search%");
+            });
+        }
+
+        // filter by genres
+        if ($request->has('genres')) {
+            $genres = $request->input('genres');
+            $books->whereIn('genre_id', $genres);
+        }
+
+        // filter by authors
+        if ($request->has('authors')) {
+            $authors = $request->input('authors');
+            $books->whereIn('author_id', $authors);
+        }
+
+        return view('models.book.index', [
+            'books' => $books->paginate(7),
+            'genres' => Genre::orderBy('name')->get(),
+            'authors' => Author::orderBy('name')->get(),
+        ]);
     }
 
     /**
@@ -23,7 +57,7 @@ class BookController extends Controller
      */
     public function create()
     {
-        $genres  = \App\Models\Genre::orderBy('name')->get();
+        $genres = \App\Models\Genre::orderBy('name')->get();
         $authors = \App\Models\Author::orderBy('name')->get();
 
         return view('models.book.create', compact('genres', 'authors'));
@@ -44,7 +78,7 @@ class BookController extends Controller
      */
     public function edit(Book $book)
     {
-        $genres  = \App\Models\Genre::orderBy('name')->get();
+        $genres = \App\Models\Genre::orderBy('name')->get();
         $authors = \App\Models\Author::orderBy('name')->get();
 
         return view('models.book.edit', compact('book', 'genres', 'authors'));
